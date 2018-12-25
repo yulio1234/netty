@@ -25,7 +25,7 @@ public class AsyncTimeServerHandler implements Runnable {
     }
 
     public void doAccept() {
-        asynchronousServerSocketChannel.accept(this,new AcceptCompletionhandler());
+        asynchronousServerSocketChannel.accept(this,new AcceptCompletionHandler());
     }
 
     @Override
