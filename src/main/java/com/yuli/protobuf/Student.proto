@@ -1,0 +1,9 @@
+syntax="proto3";
+package com.yuli.protobuf;
+option optimize_for = SEEP;
+option java_package = "com.yuli.netty.protobuf";
+option java_outer_classname = "DataInfo";
+
+message person{
+
+}
