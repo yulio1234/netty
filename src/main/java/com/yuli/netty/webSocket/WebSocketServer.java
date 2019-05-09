@@ -29,6 +29,7 @@ public class WebSocketServer {
             serverBootstrap.group(bossGroup,workerGroup)
                     //请求链接处理
                     .channel(NioServerSocketChannel.class)
+                    //针对与bossgroup，打印日志
                     .handler(new LoggingHandler(LogLevel.INFO))
                     //具体事件处理，链接被注册之后调用管道初始化方法
                     .childHandler(new ChannelInitializer<SocketChannel>(){
