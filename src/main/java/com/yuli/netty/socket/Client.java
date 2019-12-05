@@ -12,6 +12,8 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 public class Client {
     public static void main(String[] args) throws InterruptedException {
@@ -25,14 +27,32 @@ public class Client {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,0,4,0,4));
                             ch.pipeline().addLast(new LengthFieldPrepender(4));
-                            ch.pipeline().addLast(new StringDecoder(CharsetUtil.UTF_8));
-                            ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8));
+                            ch.pipeline().addLast(new Encode());
+                            ch.pipeline().addLast(new Decode());
                             ch.pipeline().addLast(new ClientHandler());
 
                         }
                     });
-            ChannelFuture channelFuture = bootstrap.connect("localhost", 8080).sync();
-            channelFuture.channel().closeFuture().sync();
+            ChannelFuture channelFuture = bootstrap.connect("localhost", 8080).addListener(new GenericFutureListener<Future<? super Void>>() {
+                @Override
+                public void operationComplete(Future<? super Void> future) throws Exception {
+                    if (future.isSuccess()) {
+                        System.out.println("链接成功");
+                    }else {
+                        System.out.println("链接失败");
+                        future.cause().printStackTrace();
+                    }
+                }
+            });
+            channelFuture.channel().closeFuture().addListener(new GenericFutureListener<Future<? super Void>>() {
+                @Override
+                public void operationComplete(Future<? super Void> future) throws Exception {
+                    if (future.isSuccess()) {
+                        System.out.println("客户端关闭了");
+                    }
+                }
+            });
+            Thread.sleep(1000);
         } finally {
             eventLoopGroup.shutdownGracefully();
         }
